@@ -1,0 +1,161 @@
+// lexical analyser
+for is an identifier
+( is a symbol
+int is a keyword
+i is an identifier
+= is an operator
+0 is a constant
+; is a symbol
+i is an identifier
+< is a symbol
+10 is a constant
+; is a symbol
+i is an identifier
++ is an operator
++ is an operator
+) is a symbol
+
+
+//regular to NDFA
+(a+b)*.c
+0 1 2 3 4 5
+
+   E         | 0
+ E   E   E   | 1
+       )     | 2
+     E   E   | 3
+           c | 4
+             | 5
+
+// nfa- dfa
+move(0,a) :0
+
+move(0,a) :1
+
+move(0,a) :-1
+
+move(0,b) :-1
+
+move(0,e) :-1
+
+move(1,a) :-1
+
+move(1,b) :2
+
+move(1,b) :-1
+
+move(1,e) :-1
+
+move(2,a) :-1
+
+move(2,b) :-1
+
+move(2,e) :-1
+
+
+
+# Output		 
+
+DFA Transition Table 
+
+		 -------------------- 
+
+States	String	Inputs
+
+ 	a	b
+
+ 	----------
+
+A	0	B	C
+
+B	01	B	D
+
+C		C	C
+
+D	2	C	C
+
+
+
+// first and follow
+gram = {
+	"E":["E+T","T"],
+	"T":["T*F","F"],
+	"F":["(E)","id"]
+}
+First(E): ['(', 'i']
+First(T): ['(', 'i']
+First(F): ['(', 'i']
+First(E'): ['+', 'e']
+First(T'): ['*', 'e']
+Follow(E): [')', '$']
+Follow(T): [')', '+', '$']
+Follow(F): [')', '+', '*', '$']
+Follow(E'): [')', '$']
+Follow(T'): [')', '+', '$']
+
+// leading trailing 
+a = ["E=E+T",
+     "E=T",
+     "T=T*F",
+     "T=F",
+     "F=(E)",
+     "F=i"]
+{'E': ['E+T', 'T'], 'T': ['T*F', 'F'], 'F': ['(E)', 'i']} ['T', 'E', 'F']
+LEADING(T): {'i', '(', '*'}
+LEADING(E): {'i', '+', '*', '('}
+LEADING(F): {'i', '('}
+TRAILING(T): {'i', '*', ')'}
+TRAILING(E): {'i', '+', '*', ')'}
+TRAILING(F): {'i', ')'}
+
+
+
+// left factoring
+S->iEtS|iEtSeS|a
+S->aZ'
+Z'->ε
+S->iEtSY'
+Y'->ε |eS
+
+// left recursion
+The resulting productions after eliminating Left Recursion are :
+a = ["E=E+T",
+     "E=T",
+     "T=T*F",
+     "T=F",
+     "F=(E)",
+     "F=i"]
+E->TE'
+T->FT'
+E' -> +TE'|ε
+T' -> *FT'|ε
+F -> (E)
+F -> i
+
+// shift reduce
+gram = {
+	"E":["2E2","3E3","4"]
+}
+starting_terminal = "E"
+inp = "2324232$"
+
+Stack          |Input Buffer   |Parsing Action
+--------------------------------------------------
+$2             |324232$        |Shift
+$23            |24232$         |Shift
+$232           |4232$          |Shift
+$2324          |232$           |Shift
+$232E          |232$           |Reduce S->4
+$232E2         |32$            |Shift
+$23E           |32$            |Reduce S->2E2
+$23E3          |2$             |Shift
+$2E            |2$             |Reduce S->3E3
+$2E2           |$              |Shift
+$E             |$              |Reduce S->2E2
+$E             |$              |Accepted
+
+
+// prefix postfix
+INPUT THE EXPRESSION: a=(b+c)*(d+e)
+PREFIX: *+bc+de
+POSTFIX: a=bc+de+*
